@@ -1,5 +1,6 @@
 package me.libraryaddict.disguise.commands.disguise;
 
+import me.libraryaddict.disguise.BlockedDisguises;
 import me.libraryaddict.disguise.DisguiseAPI;
 import me.libraryaddict.disguise.DisguiseConfig;
 import me.libraryaddict.disguise.commands.DisguiseBaseCommand;
@@ -11,6 +12,7 @@ import me.libraryaddict.disguise.utilities.parser.DisguiseParser;
 import me.libraryaddict.disguise.utilities.parser.DisguisePermissions;
 import me.libraryaddict.disguise.utilities.translations.LibsMsg;
 import org.apache.commons.lang.StringUtils;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
@@ -64,6 +66,20 @@ public class DisguiseCommand extends DisguiseBaseCommand implements TabCompleter
                 }
             }
         }
+
+        if (!BlockedDisguises.disabled) {
+
+            if (BlockedDisguises.isAllowed(disguise)) {
+                DisguiseAPI.disguiseToAll((Player) sender, disguise);
+            } else {
+                sender.sendMessage(ChatColor.RED + "That disguise is forbidden.");
+                return true;
+            }
+        } else {
+            sender.sendMessage(ChatColor.RED + "Disguises are disabled.");
+            return true;
+        }
+
 
         disguise.setEntity((Player) sender);
 

@@ -5,12 +5,8 @@ import lombok.Getter;
 import me.libraryaddict.disguise.commands.LibsDisguisesCommand;
 import me.libraryaddict.disguise.commands.disguise.DisguiseCommand;
 import me.libraryaddict.disguise.commands.disguise.DisguiseEntityCommand;
-import me.libraryaddict.disguise.commands.disguise.DisguisePlayerCommand;
-import me.libraryaddict.disguise.commands.disguise.DisguiseRadiusCommand;
 import me.libraryaddict.disguise.commands.modify.DisguiseModifyCommand;
 import me.libraryaddict.disguise.commands.modify.DisguiseModifyEntityCommand;
-import me.libraryaddict.disguise.commands.modify.DisguiseModifyPlayerCommand;
-import me.libraryaddict.disguise.commands.modify.DisguiseModifyRadiusCommand;
 import me.libraryaddict.disguise.commands.undisguise.UndisguiseCommand;
 import me.libraryaddict.disguise.commands.undisguise.UndisguiseEntityCommand;
 import me.libraryaddict.disguise.commands.undisguise.UndisguisePlayerCommand;
@@ -169,11 +165,9 @@ public class LibsDisguises extends JavaPlugin {
         if (!DisguiseConfig.isDisableCommands()) {
             registerCommand("disguise", new DisguiseCommand());
             registerCommand("undisguise", new UndisguiseCommand());
-            registerCommand("disguiseplayer", new DisguisePlayerCommand());
             registerCommand("undisguiseplayer", new UndisguisePlayerCommand());
             registerCommand("undisguiseentity", new UndisguiseEntityCommand());
             registerCommand("disguiseentity", new DisguiseEntityCommand());
-            registerCommand("disguiseradius", new DisguiseRadiusCommand(getConfig().getInt("DisguiseRadiusMax")));
             registerCommand("undisguiseradius", new UndisguiseRadiusCommand(getConfig().getInt("UndisguiseRadiusMax")));
             registerCommand("disguisehelp", new DisguiseHelpCommand());
             registerCommand("disguiseclone", new DisguiseCloneCommand());
@@ -181,9 +175,6 @@ public class LibsDisguises extends JavaPlugin {
             registerCommand("disguiseviewbar", new DisguiseViewBarCommand());
             registerCommand("disguisemodify", new DisguiseModifyCommand());
             registerCommand("disguisemodifyentity", new DisguiseModifyEntityCommand());
-            registerCommand("disguisemodifyplayer", new DisguiseModifyPlayerCommand());
-            registerCommand("disguisemodifyradius",
-                    new DisguiseModifyRadiusCommand(getConfig().getInt("DisguiseRadiusMax")));
             registerCommand("copydisguise", new CopyDisguiseCommand());
             registerCommand("grabskin", new GrabSkinCommand());
             registerCommand("savedisguise", new SaveDisguiseCommand());
