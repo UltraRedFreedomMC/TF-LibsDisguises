@@ -6,5 +6,3 @@ Bisect-Hosted: %data%
 Server-IP: %data%
 # Should the plugin be doing release or dev builds updating?
 ReleaseBuild: %data%
-# Make sure the plugin aint spamming update requests
-LastUpdateCheck: %data%
