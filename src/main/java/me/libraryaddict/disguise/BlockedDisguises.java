@@ -18,10 +18,6 @@ public class BlockedDisguises
 
     public static boolean isAllowed(DisguiseType type)
     {
-        if (forbiddenDisguises.contains(type))
-        {
-            return false;
-        }
-        return true;
+        return !forbiddenDisguises.contains(type);
     }
 }

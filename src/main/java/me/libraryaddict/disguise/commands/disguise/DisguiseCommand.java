@@ -70,7 +70,7 @@ public class DisguiseCommand extends DisguiseBaseCommand implements TabCompleter
         if (!BlockedDisguises.disabled) {
 
             if (BlockedDisguises.isAllowed(disguise)) {
-                DisguiseAPI.disguiseToAll((Player) sender, disguise);
+                disguise.setEntity((Player) sender);
             } else {
                 sender.sendMessage(ChatColor.RED + "That disguise is forbidden.");
                 return true;
@@ -79,9 +79,6 @@ public class DisguiseCommand extends DisguiseBaseCommand implements TabCompleter
             sender.sendMessage(ChatColor.RED + "Disguises are disabled.");
             return true;
         }
-
-
-        disguise.setEntity((Player) sender);
 
         if (!setViewDisguise(args)) {
             // They prefer to have the opposite of whatever the view disguises option is
