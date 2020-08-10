@@ -177,7 +177,6 @@ public class LibsDisguises extends JavaPlugin {
             registerCommand("disguisemodifyentity", new DisguiseModifyEntityCommand());
             registerCommand("copydisguise", new CopyDisguiseCommand());
             registerCommand("grabskin", new GrabSkinCommand());
-            registerCommand("savedisguise", new SaveDisguiseCommand());
             registerCommand("grabhead", new GrabHeadCommand());
         } else {
             getLogger().info("Commands has been disabled, as per config");
