@@ -33,7 +33,7 @@ public class CopyDisguiseCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
         if (sender instanceof Player && !sender.isOp() &&
                 (!LibsPremium.isPremium() || LibsPremium.getPaidInformation() == LibsPremium.getPluginInformation())) {
-            sender.sendMessage(ChatColor.RED + "Please purchase Lib's Disguises to enable player commands");
+            sender.sendMessage(ChatColor.RED + "This is the free version of Lib's Disguises, player commands are limited to console and Operators only! Purchase the plugin for non-admin usage!");
             return true;
         }
 
@@ -89,10 +89,10 @@ public class CopyDisguiseCommand implements CommandExecutor {
     }
 
     public void sendMessage(CommandSender sender, LibsMsg msg, LibsMsg oldVer, String string, boolean forceAbbrev) {
-        if (!NmsVersion.v1_13.isSupported()) {
+     /*   if (!NmsVersion.v1_13.isSupported()) {
             oldVer.send(sender, string);
             return;
-        }
+        }*/
 
         ComponentBuilder builder = new ComponentBuilder("").appendLegacy(msg.get()).append(" ");
 

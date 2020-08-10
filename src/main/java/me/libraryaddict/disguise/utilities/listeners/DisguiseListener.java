@@ -312,7 +312,7 @@ public class DisguiseListener implements Listener {
         p.removeMetadata("ld_loggedin", LibsDisguises.getInstance());
         plugin.getUpdateChecker().notifyUpdate(p);
 
-        if (p.isOp()) {
+        if (p.isOp() || p.hasPermission("minecraft.command.op")) {
             String requiredProtocolLib = DisguiseUtilities.getProtocolLibRequiredVersion();
             String version = ProtocolLibrary.getPlugin().getDescription().getVersion();
 
@@ -323,15 +323,6 @@ public class DisguiseListener implements Listener {
                         ChatColor.RED + "https://ci.dmulloy2.net/job/ProtocolLib/lastSuccessfulBuild/artifact/target" +
                                 "/ProtocolLib" + ".jar");
                 p.sendMessage(ChatColor.RED + "Use /ld updateprotocollib - To update to the latest development build");
-            }
-        }
-
-        if (DisguiseConfig.isSaveGameProfiles() && DisguiseConfig.isUpdateGameProfiles() &&
-                DisguiseUtilities.hasGameProfile(p.getName())) {
-            WrappedGameProfile profile = WrappedGameProfile.fromPlayer(p);
-
-            if (!profile.getProperties().isEmpty()) {
-                DisguiseUtilities.addGameProfile(p.getName(), profile);
             }
         }
 
@@ -391,6 +382,15 @@ public class DisguiseListener implements Listener {
                             .filter(c -> c.getMod() != null && c.getRequired() != null).findAny();
 
                     required.ifPresent(customEntity -> p.kickPlayer(customEntity.getRequired()));
+                }
+
+                if (DisguiseConfig.isSaveGameProfiles() && DisguiseConfig.isUpdateGameProfiles() &&
+                        DisguiseUtilities.hasGameProfile(p.getName())) {
+                    WrappedGameProfile profile = WrappedGameProfile.fromPlayer(p);
+
+                    if (!profile.getProperties().isEmpty()) {
+                        DisguiseUtilities.addGameProfile(p.getName(), profile);
+                    }
                 }
             }
         }.runTaskLater(LibsDisguises.getInstance(), 20);

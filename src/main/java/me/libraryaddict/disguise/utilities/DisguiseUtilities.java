@@ -46,7 +46,6 @@ import org.bukkit.*;
 import org.bukkit.boss.KeyedBossBar;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.*;
-import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -268,7 +267,7 @@ public class DisguiseUtilities {
     }
 
     public static String getProtocolLibRequiredVersion() {
-        return NmsVersion.v1_16.isSupported() ? "4.6.0" : "4.5.1";
+        return !NmsVersion.v1_13.isSupported() ? "4.4.0" : NmsVersion.v1_16.isSupported() ? "4.6.0" : "4.5.1";
     }
 
     /**

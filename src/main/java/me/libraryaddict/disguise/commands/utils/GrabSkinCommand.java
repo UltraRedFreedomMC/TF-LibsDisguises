@@ -30,7 +30,7 @@ public class GrabSkinCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
         if (sender instanceof Player && !sender.isOp() &&
                 (!LibsPremium.isPremium() || LibsPremium.getPaidInformation() == LibsPremium.getPluginInformation())) {
-            sender.sendMessage(ChatColor.RED + "Please purchase Lib's Disguises to enable player commands");
+            sender.sendMessage(ChatColor.RED + "This is the free version of Lib's Disguises, player commands are limited to console and Operators only! Purchase the plugin for non-admin usage!");
             return true;
         }
 
@@ -113,7 +113,7 @@ public class GrabSkinCommand implements CommandExecutor {
                 int start = 0;
                 int msg = 1;
 
-                if (NmsVersion.v1_13.isSupported()) {
+               //if (NmsVersion.v1_13.isSupported()) {
                     ComponentBuilder builder = new ComponentBuilder("").appendLegacy(LibsMsg.CLICK_TO_COPY.get());
 
                     while (start < string.length()) {
@@ -139,9 +139,9 @@ public class GrabSkinCommand implements CommandExecutor {
                     }
 
                     sender.spigot().sendMessage(builder.create());
-                } else {
+                /*} else {
                     LibsMsg.SKIN_DATA.send(sender, string);
-                }
+                }*/
 
                 DisguiseUtilities.setGrabSkinCommandUsed();
             }

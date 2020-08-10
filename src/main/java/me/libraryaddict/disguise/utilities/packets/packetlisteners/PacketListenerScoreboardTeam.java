@@ -13,7 +13,6 @@ import me.libraryaddict.disguise.disguisetypes.TargetedDisguise;
 import me.libraryaddict.disguise.utilities.DisguiseUtilities;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
-import org.apache.commons.lang.StringUtils;
 
 import java.util.Set;
 
@@ -43,7 +42,13 @@ public class PacketListenerScoreboardTeam extends PacketAdapter {
                     continue;
                 }
 
-                team = ((PlayerDisguise) disguise).getScoreboardName();
+                DisguiseUtilities.DScoreTeam t = ((PlayerDisguise) disguise).getScoreboardName();
+
+                if (!name.equals(t.getTeamName())) {
+                    continue;
+                }
+
+                team = t;
                 break loop;
             }
         }

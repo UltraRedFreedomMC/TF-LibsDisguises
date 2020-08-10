@@ -253,6 +253,9 @@ public class DisguiseConfig {
     @Getter
     @Setter
     private static boolean saveUserPreferences;
+    @Getter
+    @Setter
+    private static long lastUpdateRequest;
 
     public static boolean isArmorstandsName() {
         return getPlayerNameType() == PlayerNameType.ARMORSTANDS;
@@ -311,12 +314,25 @@ public class DisguiseConfig {
             return;
         }
 
+        long timeSinceLast = System.currentTimeMillis() - (getLastUpdateRequest() + TimeUnit.HOURS.toMillis(6));
+
+        // Change timer to 30 min if longer than that
+        if (timeSinceLast > TimeUnit.MINUTES.toMillis(30)) {
+            timeSinceLast = TimeUnit.MINUTES.toMillis(30);
+        }
+
+        if (timeSinceLast > 0) {
+            timeSinceLast /= 50;
+        } else {
+            timeSinceLast = 0;
+        }
+
         updaterTask = Bukkit.getScheduler().runTaskTimerAsynchronously(LibsDisguises.getInstance(), new Runnable() {
             @Override
             public void run() {
                 LibsDisguises.getInstance().getUpdateChecker().doAutoUpdateCheck();
             }
-        }, 0, (20 * TimeUnit.HOURS.toSeconds(6))); // Check every 6 hours
+        }, timeSinceLast, (20 * TimeUnit.HOURS.toSeconds(6))); // Check every 6 hours
     }
 
     public static void setUsingReleaseBuilds(boolean useReleaseBuilds) {
@@ -350,6 +366,7 @@ public class DisguiseConfig {
         bisectHosted = configuration.getBoolean("Bisect-Hosted", isBisectHosted());
         savedServerIp = configuration.getString("Server-IP", getSavedServerIp());
         usingReleaseBuild = configuration.getBoolean("ReleaseBuild", isUsingReleaseBuild());
+        lastUpdateRequest = configuration.getLong("LastUpdateRequest", 0L);
 
         if (!configuration.contains("Bisect-Hosted") || !configuration.contains("Server-IP") ||
                 !configuration.contains("ReleaseBuild")) {
@@ -364,7 +381,8 @@ public class DisguiseConfig {
                 .getResourceAsString(LibsDisguises.getInstance().getFile(), "internal.yml");
 
         // Bisect hosted, server ip, release builds
-        for (Object s : new Object[]{isBisectHosted(), getSavedServerIp(), isUsingReleaseBuild()}) {
+        for (Object s : new Object[]{isBisectHosted(), getSavedServerIp(), isUsingReleaseBuild(),
+                getLastUpdateRequest()}) {
             internalConfig = internalConfig.replaceFirst("%data%", "" + s);
         }
 

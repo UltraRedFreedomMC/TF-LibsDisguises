@@ -18,6 +18,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.util.AbstractMap.SimpleEntry;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -179,10 +180,17 @@ public class LDUploadLogs implements LDCommand {
                         String disguiseText = new String(Files.readAllBytes(disguises.toPath()));
                         StringBuilder configText = new StringBuilder(new String(Files.readAllBytes(config.toPath())));
 
-                        configText.append("\n\n");
+                        configText.append("\n================\n");
 
-                        for (String s : DisguiseConfig.doOutput(LibsDisguises.getInstance().getConfig(), true, true)) {
+                        ArrayList<String> modified = DisguiseConfig
+                                .doOutput(LibsDisguises.getInstance().getConfig(), true, true);
+
+                        for (String s : modified) {
                             configText.append("\n").append(s);
+                        }
+
+                        if (modified.isEmpty()) {
+                            configText.append("\nUsing default config!");
                         }
 
                         URL latestPaste = new GuestPaste("latest.log", latestText).paste();
@@ -194,27 +202,21 @@ public class LDUploadLogs implements LDCommand {
                             public void run() {
                                 sender.sendMessage(ChatColor.GOLD + "Upload successful!");
 
-                                if (NmsVersion.v1_13.isSupported()) {
-                                    // Console can't click :(
-                                    if (sender instanceof Player) {
-                                        sender.sendMessage(ChatColor.GOLD +
-                                                "Click on the below message to have it appear in your chat input");
-                                    }
-
-                                    String text = "My log file: " + latestPaste + ", my config file: " + configPaste +
-                                            " and my disguises file: " + disguisesPaste;
-
-                                    ComponentBuilder builder = new ComponentBuilder("");
-                                    builder.appendLegacy(ChatColor.AQUA + "");
-                                    builder.append(text);
-                                    builder.event(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, text));
-
-                                    sender.spigot().sendMessage(builder.create());
-                                } else {
-                                    sender.sendMessage(
-                                            ChatColor.GOLD + "Please provide the three links! Log: " + latestPaste +
-                                                    "\nConfig: " + configPaste + "\nDisguises: " + disguisesPaste);
+                                // Console can't click :(
+                                if (sender instanceof Player) {
+                                    sender.sendMessage(ChatColor.GOLD +
+                                            "Click on the below message to have it appear in your chat input");
                                 }
+
+                                String text = "My log file: " + latestPaste + ", my config file: " + configPaste +
+                                        " and my disguises file: " + disguisesPaste;
+
+                                ComponentBuilder builder = new ComponentBuilder("");
+                                builder.appendLegacy(ChatColor.AQUA + "");
+                                builder.append(text);
+                                builder.event(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, text));
+
+                                sender.spigot().sendMessage(builder.create());
                             }
                         }.runTask(LibsDisguises.getInstance());
                     }

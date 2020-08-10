@@ -5,7 +5,6 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 /**
  * Created by libraryaddict on 15/06/2017.
@@ -160,6 +159,7 @@ public enum LibsMsg {
             "Ignored %s methods you do not have permission to use. Add 'show' to view unusable methods."),
     OWNED_BY(ChatColor.GOLD + "Plugin registered to '%%__USER__%%'!"),
     NOT_DISGUISED(ChatColor.RED + "You are not disguised!"),
+    DISGUISE_REQUIRED(ChatColor.RED + "You must be disguised to run this command!"),
     TARGET_NOT_DISGUISED(ChatColor.RED + "That entity is not disguised!"),
     NOT_NUMBER(ChatColor.RED + "Error! %s is not a number"),
     PARSE_CANT_DISG_UNKNOWN(ChatColor.RED + "Error! You cannot disguise as " + ChatColor.GREEN + "Unknown!"),
@@ -280,16 +280,17 @@ public enum LibsMsg {
     META_CLICK_SHOW(ChatColor.GOLD + "Click to show %s"),
     LIBS_PERM_CHECK_NON_PREM(
             ChatColor.RED + "This server is not premium, non-admins should not be able to use commands"),
+    LIBS_PERM_CHECK_CAN_TARGET(ChatColor.GOLD + "You can specify a player target with /ld permtest <Target> instead!"),
+    LIBS_PERM_CHECK_USING_TARGET(ChatColor.GOLD + "Running the permission test on '%s'"),
     LIBS_PERM_CHECK_INFO_1(ChatColor.AQUA + "Now checking for the permission 'libsdisguises.disguise.pig'"),
-    LIBS_PERM_CHECK_INFO_2(ChatColor.AQUA +
-            "If you did not give this permission, please set it. You can supply a player name to test another player."),
+    LIBS_PERM_CHECK_INFO_2(ChatColor.AQUA + "If you did not give this permission, please set it."),
     NORMAL_PERM_CHECK_SUCCESS(ChatColor.GOLD + "Normal permission check, success."),
     NORMAL_PERM_CHECK_FAIL(ChatColor.RED + "Normal permission check, fail."),
     LIBS_PERM_CHECK_SUCCESS(
             ChatColor.GOLD + "Lib's Disguises permission check, success. Pig disguise should be usable!"),
     LIBS_PERM_CHECK_FAIL(
             ChatColor.GOLD + "Lib's Disguises permission check, fail. Your permission plugin isn't compliant!"),
-    LIBS_PERM_CHECK_ZOMBIE_PERMISSIONS(ChatColor.RED +
+    LIBS_PERM_CHECK_ZOMBIE_PERMISSIONS(ChatColor.GOLD +
             "Tested libsdisguises.disguise.zombie, which your player seems to have! There may be a problem in your " +
             "permissions setup!"),
     LIBS_PERM_CHECK_COMMAND_UNREGISTERED(
@@ -311,11 +312,15 @@ public enum LibsMsg {
     ITEM_SIMPLE_STRING_NO_COPY(ChatColor.GOLD + "Simple: " + ChatColor.YELLOW + "%s"),
     LIBS_SCOREBOARD_NO_TEAM(ChatColor.RED + "Not on a scoreboard team!"),
     LIBS_SCOREBOARD_NO_TEAM_PUSH(ChatColor.RED + "On scoreboard team '%s' and pushing is enabled! (That's bad)"),
+    PLUGIN_TAB_DETECTED(ChatColor.RED + "TAB has been detected! This is a huge culprit! Check the TAB config and set " +
+            ChatColor.GREEN + "enable-collision: true" + ChatColor.RED + " to " + ChatColor.DARK_GREEN +
+            "enable-collision: false"),
     LIBS_SCOREBOARD_SUCCESS(ChatColor.GOLD +
             "On scoreboard team '%s' with pushing disabled! If you're still having issues and you are disguised right" +
             " now, then " +
             "you have a plugin modifying scoreboard through packets. Example of this is a plugin that modifies your " +
-            "name above head, or the tablist. Check their configs for pushing disabling options"),
+            "name above head, or the tablist. Check their configs for pushing disabling options\nSay 'I read to the " +
+            "end' if you " + "still need help with this, or we'll assume you can't read."),
     LIBS_SCOREBOARD_DISABLED(
             "The scoreboard modification has been disabled in config, will continue the debug incase this is intended" +
                     "."),

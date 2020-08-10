@@ -2,7 +2,6 @@ package me.libraryaddict.disguise.commands.libsdisguises;
 
 import me.libraryaddict.disguise.LibsDisguises;
 import me.libraryaddict.disguise.disguisetypes.DisguiseType;
-import me.libraryaddict.disguise.utilities.DisguiseUtilities;
 import me.libraryaddict.disguise.utilities.LibsPremium;
 import me.libraryaddict.disguise.utilities.parser.DisguisePerm;
 import me.libraryaddict.disguise.utilities.parser.DisguisePermissions;
@@ -44,8 +43,11 @@ public class LDPermTest implements LDCommand {
                 LibsMsg.CANNOT_FIND_PLAYER.send(sender, args[1]);
                 return;
             }
+
+            LibsMsg.LIBS_PERM_CHECK_USING_TARGET.send(sender, args[1]);
         } else {
             player = sender;
+            LibsMsg.LIBS_PERM_CHECK_CAN_TARGET.send(sender);
         }
 
         DisguisePermissions permissions = new DisguisePermissions(player, "disguise");
