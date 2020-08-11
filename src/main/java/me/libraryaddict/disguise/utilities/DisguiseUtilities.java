@@ -197,6 +197,34 @@ public class DisguiseUtilities {
         return viewSelf;
     }
 
+    public static String getDisplayName(CommandSender player) {
+        if (player == null) {
+            return "???";
+        }
+
+        if (!(player instanceof Player)) {
+            return player.getName();
+        }
+
+        Team team = ((Player) player).getScoreboard().getEntryTeam(player.getName());
+
+        if (team == null) {
+            team = ((Player) player).getScoreboard().getEntryTeam(((Player) player).getUniqueId().toString());
+        }
+
+        if (team == null || (StringUtils.isEmpty(team.getPrefix()) && StringUtils.isEmpty(team.getSuffix()))) {
+            String name = ((Player) player).getDisplayName();
+
+            if (name.equals(player.getName())) {
+                return ((Player) player).getPlayerListName();
+            }
+
+            return name;
+        }
+
+        return team.getPrefix() + team.getColor() + player.getName() + team.getSuffix();
+    }
+
     public static void saveViewPreferances() {
         if (!DisguiseConfig.isSaveUserPreferences()) {
             return;
@@ -2697,7 +2725,7 @@ public class DisguiseUtilities {
 
         for (int i = 0; i < newNames.length; i++) {
             if (i < internalOldNames.length) {
-                if (newNames[i].equals(internalOldNames[i]) || newNames[i].isEmpty()) {
+                if (newNames[i].equals(internalOldNames[i])) {
                     continue;
                 }
 
@@ -2783,39 +2811,46 @@ public class DisguiseUtilities {
     }
 
     public static Disguise getDisguise(Player observer, int entityId) {
+        Entity entity = null;
+
         // If the entity ID is the same as self disguises id, then it needs to be set to the observers id
         if (entityId == DisguiseAPI.getSelfDisguiseId()) {
-            entityId = observer.getEntityId();
+            entity = observer;
+        } else {
+            for (Entity e : observer.getWorld().getEntities()) {
+                if (e.getEntityId() != entityId) {
+                    continue;
+                }
+
+                entity = e;
+                break;
+            }
+
+            if (entity == null) {
+                return null;
+            }
         }
 
         if (getFutureDisguises().containsKey(entityId)) {
-            for (World world : Bukkit.getWorlds()) {
-                for (Entity entity : world.getEntities()) {
-                    if (entity.getEntityId() != entityId) {
-                        continue;
-                    }
-
-                    onFutureDisguise(entity);
-                }
-            }
+            onFutureDisguise(entity);
         }
 
-        for (Set<TargetedDisguise> disguises : getDisguises().values()) {
-            for (TargetedDisguise dis : disguises) {
-                if (dis.getEntity() == null || !dis.isDisguiseInUse()) {
-                    continue;
-                }
+        TargetedDisguise[] disguises = getDisguises(entity.getUniqueId());
 
-                if (dis.getEntity().getEntityId() != entityId) {
-                    continue;
-                }
+        if (disguises == null) {
+            return null;
+        }
 
-                if (!dis.canSee(observer)) {
-                    continue;
-                }
-
-                return dis;
+        for (TargetedDisguise dis : disguises) {
+            if (!dis.isDisguiseInUse()) {
+                continue;
             }
+
+            if (!dis.canSee(observer)) {
+                continue;
+            }
+
+            return dis;
         }
 
         return null;
