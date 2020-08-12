@@ -16,6 +16,8 @@ import me.libraryaddict.disguise.utilities.sounds.SoundGroup;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.*;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
 import org.bukkit.command.SimpleCommandMap;
@@ -131,7 +133,7 @@ public class ReflectionManager {
             NmsAddedIn added = obj.getAnnotation(NmsAddedIn.class);
 
             // If it was added after this version
-            if (!added.val().isSupported()) {
+            if (!added.value().isSupported()) {
                 return false;
             }
         }
@@ -1463,6 +1465,19 @@ public class ReflectionManager {
         return new WrappedWatchableObject(watcherItem);
     }
 
+    public static int getCombinedIdByBlockData(BlockData data) {
+        try {
+            Object iBlockData = getCraftMethod("block.data.type.CraftBlockData", "getState").invoke(data);
+
+            return (int) getNmsMethod("Block", "getCombinedId", getNmsClass("IBlockData")).invoke(null, iBlockData);
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return 0;
+    }
+
     public static int getCombinedIdByItemStack(ItemStack itemStack) {
         try {
             Object nmsBlock;
@@ -1488,6 +1503,25 @@ public class ReflectionManager {
         }
 
         return 0;
+    }
+
+    public static BlockData getBlockDataByCombinedId(int id) {
+        try {
+            Method idMethod = getNmsMethod("Block", "getByCombinedId", int.class);
+            Object iBlockData = idMethod.invoke(null, id);
+            Class iBlockClass = getNmsClass("IBlockData");
+
+            Method getBlock = getNmsMethod(iBlockClass, "getBlock");
+            Object block = getBlock.invoke(iBlockData);
+
+            return (BlockData) getCraftMethod("block.data.type.CraftBlockData", "fromData", iBlockClass)
+                    .invoke(null, block);
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return null;
     }
 
     public static ItemStack getItemStackByCombinedId(int id) {
