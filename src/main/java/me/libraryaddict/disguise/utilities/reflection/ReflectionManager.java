@@ -1467,7 +1467,7 @@ public class ReflectionManager {
 
     public static int getCombinedIdByBlockData(BlockData data) {
         try {
-            Object iBlockData = getCraftMethod("block.data.type.CraftBlockData", "getState").invoke(data);
+            Object iBlockData = getCraftMethod("block.data.CraftBlockData", "getState").invoke(data);
 
             return (int) getNmsMethod("Block", "getCombinedId", getNmsClass("IBlockData")).invoke(null, iBlockData);
         }
@@ -1511,11 +1511,8 @@ public class ReflectionManager {
             Object iBlockData = idMethod.invoke(null, id);
             Class iBlockClass = getNmsClass("IBlockData");
 
-            Method getBlock = getNmsMethod(iBlockClass, "getBlock");
-            Object block = getBlock.invoke(iBlockData);
-
-            return (BlockData) getCraftMethod("block.data.type.CraftBlockData", "fromData", iBlockClass)
-                    .invoke(null, block);
+            return (BlockData) getCraftMethod("block.data.CraftBlockData", "fromData", iBlockClass)
+                    .invoke(null, iBlockData);
         }
         catch (Exception ex) {
             ex.printStackTrace();
