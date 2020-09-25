@@ -3,6 +3,7 @@ package me.libraryaddict.disguise.utilities.packets.packethandlers;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.reflect.StructureModifier;
+import me.libraryaddict.disguise.DisguiseAPI;
 import me.libraryaddict.disguise.LibsDisguises;
 import me.libraryaddict.disguise.disguisetypes.Disguise;
 import me.libraryaddict.disguise.disguisetypes.DisguiseType;
@@ -13,6 +14,7 @@ import me.libraryaddict.disguise.utilities.packets.IPacketHandler;
 import me.libraryaddict.disguise.utilities.packets.LibsPackets;
 import org.apache.commons.lang.math.RandomUtils;
 import org.bukkit.Location;
+import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
@@ -52,6 +54,10 @@ public class PacketHandlerMovement implements IPacketHandler {
         double height = disguise.getHeight();
 
         for (PacketContainer packet : packets.getPackets()) {
+            if (packet.getType() == PacketType.Play.Server.ENTITY_LOOK) {
+                continue;
+            }
+
             for (int i = 0; i < len; i++) {
                 int standId = disguise.getArmorstandIds()[i];
                 PacketContainer packet2 = packet.shallowClone();
@@ -189,7 +195,16 @@ public class PacketHandlerMovement implements IPacketHandler {
                 bytes.write(0, yawValue);
                 bytes.write(1, pitchValue);
 
-                if (sentPacket.getType() == PacketType.Play.Server.ENTITY_TELEPORT &&
+                if (entity == observer.getVehicle() &&
+                        AbstractHorse.class.isAssignableFrom(disguise.getType().getEntityClass())) {
+                    PacketContainer packet = new PacketContainer(PacketType.Play.Server.ENTITY_LOOK);
+
+                    packet.getIntegers().write(0, DisguiseAPI.getEntityAttachmentId());
+                    packet.getBytes().write(0, yawValue);
+                    packet.getBytes().write(1, pitchValue);
+
+                    packets.addPacket(packet);
+                } else if (sentPacket.getType() == PacketType.Play.Server.ENTITY_TELEPORT &&
                         disguise.getType() == DisguiseType.ITEM_FRAME) {
                     StructureModifier<Double> doubles = movePacket.getDoubles();
 
