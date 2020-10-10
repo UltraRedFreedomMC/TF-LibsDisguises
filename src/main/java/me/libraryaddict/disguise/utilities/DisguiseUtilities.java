@@ -2311,8 +2311,6 @@ public class DisguiseUtilities {
                 }
             }
 
-            Location loc = player.getLocation();
-
             // Resend any active potion effects
             for (PotionEffect potionEffect : player.getActivePotionEffects()) {
                 Object mobEffect = ReflectionManager.createMobEffect(potionEffect);
@@ -2732,14 +2730,27 @@ public class DisguiseUtilities {
             case TAG_BYTE_ARRAY:
             case TAG_INT_ARRAY:
             case TAG_LONG_ARRAY:
-                Object[] array = (Object[]) base.getValue();
-                String[] str = new String[array.length];
+                String[] str = new String[Array.getLength(base.getValue())];
 
-                for (int i = 0; i < array.length; i++) {
-                    str[i] = array[i].toString();//+ getChar(base.getType());
+                for (int i = 0; i < str.length; i++) {
+                    str[i] = Array.get(base.getValue(), i).toString();//+ getChar(base.getType());
                 }
 
-                return "[" + StringUtils.join(str, ",") + "]";
+                String c = "";
+
+                switch (base.getType()) {
+                    case TAG_BYTE_ARRAY:
+                        c = "B;";
+                        break;
+                    case TAG_INT_ARRAY:
+                        c = "I;";
+                        break;
+                    case TAG_LONG_ARRAY:
+                        c = "L;";
+                        break;
+                }
+
+                return "[" + c + StringUtils.join(str, ",") + "]";
             case TAG_BYTE:
             case TAG_INT:
             case TAG_LONG:
@@ -2855,27 +2866,26 @@ public class DisguiseUtilities {
 
     public static ArrayList<PacketContainer> getNamePackets(Disguise disguise, String[] internalOldNames) {
         ArrayList<PacketContainer> packets = new ArrayList<>();
-        String[] newNames = new String[0];
+        String[] newNames =
+                (disguise instanceof PlayerDisguise && !((PlayerDisguise) disguise).isNameVisible()) ? new String[0] :
+                        reverse(disguise.getMultiName());
         int[] standIds = disguise.getArmorstandIds();
         int[] destroyIds = new int[0];
 
         if (!LibsPremium.isPremium()) {
-            if (internalOldNames.length > 0) {
+            if (internalOldNames.length > 1) {
                 internalOldNames = new String[]{StringUtils.join(internalOldNames, "\\n")};
             }
 
-            if (!disguise.isPlayerDisguise() || ((PlayerDisguise) disguise).isNameVisible()) {
-                if (disguise.getMultiName().length > 1) {
-                    getLogger().info("Multiline names is a premium feature, sorry!");
-                }
+            if (newNames.length > 1) {
+                newNames = new String[]{StringUtils.join(newNames, "\\n")};
 
-                if (disguise.getMultiName().length > 0) {
-                    newNames = new String[]{StringUtils.join(disguise.getMultiName(), "\\n")};
+                if (!disguise.isPlayerDisguise() || ((PlayerDisguise) disguise).isNameVisible()) {
+                    if (disguise.getMultiName().length > 1) {
+                        getLogger().info("Multiline names is a premium feature, sorry!");
+                    }
                 }
             }
-        } else {
-            newNames = (disguise instanceof PlayerDisguise && !((PlayerDisguise) disguise).isNameVisible()) ?
-                    new String[0] : reverse(disguise.getMultiName());
         }
 
         if (internalOldNames.length > newNames.length) {
@@ -2926,7 +2936,7 @@ public class DisguiseUtilities {
                 Location loc = disguise.getEntity().getLocation();
 
                 packet.getDoubles().write(0, loc.getX());
-                packet.getDoubles().write(1, loc.getY() + height + (0.28 * i));
+                packet.getDoubles().write(1, loc.getY() + height + disguise.getWatcher().getYModifier() + (0.28 * i));
                 packet.getDoubles().write(2, loc.getZ());
                 packets.add(packet);
 
@@ -3025,7 +3035,8 @@ public class DisguiseUtilities {
     /**
      * Get the Y level to add to the disguise for realism.
      */
-    public static double getYModifier(Entity entity, Disguise disguise) {
+    public static double getYModifier(Disguise disguise) {
+        Entity entity = disguise.getEntity();
         double yMod = 0;
 
         if (disguise.getType() != DisguiseType.PLAYER && entity.getType() == EntityType.DROPPED_ITEM) {

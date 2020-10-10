@@ -48,7 +48,7 @@ public class LibsDisguises extends JavaPlugin {
     @Getter
     private final UpdateChecker updateChecker = new UpdateChecker();
     @Getter
-    private final PlayerSkinHandler skinHandler = new PlayerSkinHandler();
+    private PlayerSkinHandler skinHandler;
 
     @Override
     public void onLoad() {
@@ -174,6 +174,7 @@ public class LibsDisguises extends JavaPlugin {
         PacketsManager.addPacketListeners();
 
         listener = new DisguiseListener(this);
+        skinHandler = new PlayerSkinHandler();
 
         Bukkit.getPluginManager().registerEvents(getSkinHandler(), LibsDisguises.getInstance());
 
