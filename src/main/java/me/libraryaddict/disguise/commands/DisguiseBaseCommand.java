@@ -1,11 +1,16 @@
 package me.libraryaddict.disguise.commands;
 
-import me.libraryaddict.disguise.BlockedDisguises;
+import com.comphenix.protocol.ProtocolLibrary;
 import me.libraryaddict.disguise.DisguiseConfig;
+import me.libraryaddict.disguise.LibsDisguises;
 import me.libraryaddict.disguise.commands.disguise.DisguiseCommand;
 import me.libraryaddict.disguise.commands.disguise.DisguiseEntityCommand;
+import me.libraryaddict.disguise.commands.disguise.DisguisePlayerCommand;
+import me.libraryaddict.disguise.commands.disguise.DisguiseRadiusCommand;
 import me.libraryaddict.disguise.commands.modify.DisguiseModifyCommand;
 import me.libraryaddict.disguise.commands.modify.DisguiseModifyEntityCommand;
+import me.libraryaddict.disguise.commands.modify.DisguiseModifyPlayerCommand;
+import me.libraryaddict.disguise.commands.modify.DisguiseModifyRadiusCommand;
 import me.libraryaddict.disguise.disguisetypes.DisguiseType;
 import me.libraryaddict.disguise.utilities.DisguiseUtilities;
 import me.libraryaddict.disguise.utilities.LibsPremium;
@@ -20,6 +25,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -35,13 +41,24 @@ public abstract class DisguiseBaseCommand implements CommandExecutor {
 
         map.put(DisguiseCommand.class, "Disguise");
         map.put(DisguiseEntityCommand.class, "DisguiseEntity");
+        map.put(DisguisePlayerCommand.class, "DisguisePlayer");
+        map.put(DisguiseRadiusCommand.class, "DisguiseRadius");
         map.put(DisguiseModifyCommand.class, "DisguiseModify");
         map.put(DisguiseModifyEntityCommand.class, "DisguiseModifyEntity");
+        map.put(DisguiseModifyPlayerCommand.class, "DisguiseModifyPlayer");
+        map.put(DisguiseModifyRadiusCommand.class, "DisguiseModifyRadius");
 
         disguiseCommands = map;
     }
 
     protected boolean isNotPremium(CommandSender sender) {
+        String requiredProtocolLib = DisguiseUtilities.getProtocolLibRequiredVersion();
+        String version = ProtocolLibrary.getPlugin().getDescription().getVersion();
+
+        if (DisguiseUtilities.isOlderThan(requiredProtocolLib, version)) {
+            DisguiseUtilities.sendProtocolLibUpdateMessage(sender, version, requiredProtocolLib);
+        }
+
         if (sender instanceof Player && !sender.isOp() &&
                 (!LibsPremium.isPremium() || LibsPremium.getPaidInformation() == LibsPremium.getPluginInformation())) {
             sender.sendMessage(ChatColor.RED +
@@ -219,11 +236,7 @@ public abstract class DisguiseBaseCommand implements CommandExecutor {
             if (type.isUnknown())
                 continue;
 
-            final String name = type.toReadable().replaceAll(" ", "_");
-
-            if (BlockedDisguises.isAllowed(DisguiseParser.getDisguisePerm(name).getType())) {
-                allowedDisguises.add(name);
-            }
+            allowedDisguises.add(type.toReadable().replaceAll(" ", "_"));
         }
 
         return allowedDisguises;

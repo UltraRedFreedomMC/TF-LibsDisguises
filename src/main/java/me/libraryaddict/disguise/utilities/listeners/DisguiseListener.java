@@ -326,33 +326,23 @@ public class DisguiseListener implements Listener {
         p.removeMetadata("ld_loggedin", LibsDisguises.getInstance());
         plugin.getUpdateChecker().notifyUpdate(p);
 
-        if (p.isOp() || p.hasPermission("minecraft.command.op") ||
-                new DisguisePermissions(p, "disguiseradius").hasPermissions()) {
-            String requiredProtocolLib = DisguiseUtilities.getProtocolLibRequiredVersion();
-            String version = ProtocolLibrary.getPlugin().getDescription().getVersion();
+        String requiredProtocolLib = DisguiseUtilities.getProtocolLibRequiredVersion();
+        String version = ProtocolLibrary.getPlugin().getDescription().getVersion();
 
-            if (DisguiseUtilities.isOlderThan(requiredProtocolLib, version)) {
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        if (!p.isOnline()) {
-                            cancel();
-                            return;
-                        }
+        if (DisguiseUtilities.isOlderThan(requiredProtocolLib, version)) {
+            DisguiseUtilities.sendProtocolLibUpdateMessage(p, version, requiredProtocolLib);
 
-                        p.sendMessage(ChatColor.RED + "Update your ProtocolLib! You are running " + version +
-                                " but the minimum version you should be on is " + requiredProtocolLib + "!");
-                        p.sendMessage(ChatColor.RED +
-                                "https://ci.dmulloy2.net/job/ProtocolLib/lastSuccessfulBuild/artifact/target" +
-                                "/ProtocolLib" + ".jar");
-                        p.sendMessage(ChatColor.RED +
-                                "Or! Use /ld updateprotocollib - To update to the latest development build");
-                        p.sendMessage(ChatColor.DARK_GREEN +
-                                "This message is `kindly` provided by Lib's Disguises on repeat due to the sheer " +
-                                "number of people who don't see it");
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    if (!p.isOnline()) {
+                        cancel();
+                        return;
                     }
-                }.runTaskTimer(LibsDisguises.getInstance(), 10, 10 * 60 * 20); // Run every 10 minutes
-            }
+
+                    DisguiseUtilities.sendProtocolLibUpdateMessage(p, version, requiredProtocolLib);
+                }
+            }.runTaskTimer(LibsDisguises.getInstance(), 10, 10 * 60 * 20); // Run every 10 minutes
         }
 
         if (DisguiseConfig.isSavePlayerDisguises()) {

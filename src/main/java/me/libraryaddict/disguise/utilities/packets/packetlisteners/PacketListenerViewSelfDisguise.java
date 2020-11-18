@@ -76,6 +76,10 @@ public class PacketListenerViewSelfDisguise extends PacketAdapter {
             for (PacketContainer newPacket : transformed.getPackets()) {
                 if (newPacket.getType() != Server.PLAYER_INFO && newPacket.getType() != Server.ENTITY_DESTROY &&
                         newPacket.getIntegers().read(0) == observer.getEntityId()) {
+                    if (newPacket == packet) {
+                        newPacket = newPacket.shallowClone();
+                    }
+
                     newPacket.getIntegers().write(0, DisguiseAPI.getSelfDisguiseId());
                 }
 
@@ -122,7 +126,7 @@ public class PacketListenerViewSelfDisguise extends PacketAdapter {
                         continue;
                     }
 
-                    byte b = (byte) watch.getValue();
+                    byte b = (byte) watch.getRawValue();
 
                     // Add invisibility, remove glowing
                     byte a = (byte) ((b | 1 << 5) & ~(1 << 6));

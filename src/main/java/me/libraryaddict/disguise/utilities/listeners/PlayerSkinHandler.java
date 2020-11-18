@@ -58,7 +58,7 @@ public class PlayerSkinHandler implements Listener {
 
         public boolean canRemove(boolean onMoved) {
             return firstPacketSent + (DisguiseConfig.getTablistRemoveDelay() * 50) +
-                    (onMoved ? 0 : TimeUnit.SECONDS.toMillis(5)) < System.currentTimeMillis();
+                    (onMoved ? 0 : DisguiseConfig.getPlayerDisguisesSkinExpiresMove() * 50) < System.currentTimeMillis();
         }
 
         @Override
@@ -75,8 +75,9 @@ public class PlayerSkinHandler implements Listener {
     }
 
     @Getter
-    private final Cache<Player, List<PlayerSkin>> cache =
-            CacheBuilder.newBuilder().weakKeys().expireAfterWrite(30, TimeUnit.SECONDS).removalListener((event) -> {
+    private final Cache<Player, List<PlayerSkin>> cache = CacheBuilder.newBuilder().weakKeys()
+            .expireAfterWrite(DisguiseConfig.getPlayerDisguisesSkinExpiresMove() * 50, TimeUnit.MILLISECONDS)
+            .removalListener((event) -> {
                 if (event.getCause() != RemovalCause.EXPIRED) {
                     return;
                 }
@@ -159,9 +160,7 @@ public class PlayerSkinHandler implements Listener {
     }
 
     public void handlePackets(Player player, PlayerDisguise disguise, LibsPackets packets) {
-        if (packets.getPackets().stream().anyMatch(p -> p.getType() == Server.NAMED_ENTITY_SPAWN)) {
-            return;
-        }
+        boolean spawn = packets.getPackets().stream().anyMatch(p -> p.getType() == Server.NAMED_ENTITY_SPAWN);
 
         List<PlayerSkin> skins = getCache().getIfPresent(player);
 
@@ -172,6 +171,17 @@ public class PlayerSkinHandler implements Listener {
         PlayerSkin skin = skins.stream().filter(s -> s.getDisguise().get() == disguise).findAny().orElse(null);
 
         if (skin == null || !skin.isSleepPackets()) {
+            return;
+        }
+
+        if (spawn) {
+            packets.getDelayedPacketsMap().entrySet().removeIf(entry -> {
+                entry.getValue()
+                        .removeIf(packet -> packet.getType() == Server.ENTITY_EQUIPMENT && isRemove(skin, packet));
+
+                return entry.getValue().isEmpty();
+            });
+
             return;
         }
 
@@ -208,7 +218,9 @@ public class PlayerSkinHandler implements Listener {
 
         PlayerDisguise disguise = (PlayerDisguise) event.getDisguise();
 
-        for (Player player : DisguiseUtilities.getPerverts(disguise)) {
+        ArrayList<Player> players = new ArrayList<>(getCache().asMap().keySet());
+
+        for (Player player : players) {
             List<PlayerSkin> skins = getCache().getIfPresent(player);
 
             if (skins == null) {

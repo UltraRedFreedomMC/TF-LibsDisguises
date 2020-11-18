@@ -256,14 +256,18 @@ public class DisguiseConfig {
     @Setter
     private static boolean saveUserPreferences;
     @Getter
-    @Setter
     private static long lastUpdateRequest;
+    @Getter
+    private static boolean hittingRateLimit;
     @Getter
     @Setter
     private static boolean copyPlayerTeamInfo;
     @Getter
     @Setter
     private static String nameAboveDisguise;
+    @Getter
+    @Setter
+    private static int playerDisguisesSkinExpiresMove;
 
     public static boolean isArmorstandsName() {
         return getPlayerNameType() == PlayerNameType.ARMORSTANDS;
@@ -291,6 +295,15 @@ public class DisguiseConfig {
         doUpdaterTask();
     }
 
+    public static void setLastUpdateRequest(long lastRequest) {
+        if (lastRequest <= getLastUpdateRequest()) {
+            return;
+        }
+
+        lastUpdateRequest = lastRequest;
+        saveInternalConfig();
+    }
+
     private static void doUpdaterTask() {
         boolean startTask = isAutoUpdate() || isNotifyUpdate() || "1592".equals(
                 (LibsPremium.getPaidInformation() == null ? LibsPremium.getPluginInformation() :
@@ -313,6 +326,8 @@ public class DisguiseConfig {
                     }
                 }
             }, TimeUnit.HOURS.toSeconds(1) * 20, (20 * TimeUnit.MINUTES.toSeconds(10)));
+
+            return;
         }
 
         if (updaterTask == null != startTask) {
@@ -325,25 +340,20 @@ public class DisguiseConfig {
             return;
         }
 
-        long timeSinceLast = System.currentTimeMillis() - (getLastUpdateRequest() + TimeUnit.HOURS.toMillis(6));
+        int timer = (int) (TimeUnit.HOURS.toSeconds(isHittingRateLimit() ? 36 : 6) * 20);
 
-        // Change timer to 30 min if longer than that
-        if (timeSinceLast > TimeUnit.MINUTES.toMillis(30)) {
-            timeSinceLast = TimeUnit.MINUTES.toMillis(30);
-        }
+        // Get the ticks since last update
+        long timeSinceLast = (System.currentTimeMillis() - getLastUpdateRequest()) / 50;
 
-        if (timeSinceLast > 0) {
-            timeSinceLast /= 50;
-        } else {
-            timeSinceLast = 0;
-        }
+        // Next update check will be in 30 minutes, or the timer - elapsed time. Whatever is greater
+        timeSinceLast = Math.max(30 * 60 * 20, timer - timeSinceLast);
 
         updaterTask = Bukkit.getScheduler().runTaskTimerAsynchronously(LibsDisguises.getInstance(), new Runnable() {
             @Override
             public void run() {
                 LibsDisguises.getInstance().getUpdateChecker().doAutoUpdateCheck();
             }
-        }, timeSinceLast, (20 * TimeUnit.HOURS.toSeconds(6))); // Check every 6 hours
+        }, timeSinceLast, timer);
     }
 
     public static void setUsingReleaseBuilds(boolean useReleaseBuilds) {
@@ -353,6 +363,16 @@ public class DisguiseConfig {
 
         usingReleaseBuild = useReleaseBuilds;
         saveInternalConfig();
+    }
+
+    public static void setHittingRateLimit(boolean hitRateLimit) {
+        if (hitRateLimit == isHittingRateLimit()) {
+            return;
+        }
+
+        hittingRateLimit = hitRateLimit;
+        saveInternalConfig();
+        doUpdaterTask();
     }
 
     public static void setBisectHosted(boolean isBisectHosted, String serverIP) {
@@ -378,6 +398,7 @@ public class DisguiseConfig {
         savedServerIp = configuration.getString("Server-IP", getSavedServerIp());
         usingReleaseBuild = configuration.getBoolean("ReleaseBuild", isUsingReleaseBuild());
         lastUpdateRequest = configuration.getLong("LastUpdateRequest", 0L);
+        hittingRateLimit = configuration.getBoolean("HittingRateLimit", false);
 
         if (!configuration.contains("Bisect-Hosted") || !configuration.contains("Server-IP") ||
                 !configuration.contains("ReleaseBuild")) {
@@ -393,7 +414,7 @@ public class DisguiseConfig {
 
         // Bisect hosted, server ip, release builds
         for (Object s : new Object[]{isBisectHosted(), getSavedServerIp(), isUsingReleaseBuild(),
-                getLastUpdateRequest()}) {
+                getLastUpdateRequest(), isHittingRateLimit()}) {
             internalConfig = internalConfig.replaceFirst("%data%", "" + s);
         }
 
@@ -694,6 +715,7 @@ public class DisguiseConfig {
         setOverrideCustomNames(config.getBoolean("OverrideCustomNames"));
         setRandomDisguises(config.getBoolean("RandomDisguiseOptions"));
         setSaveUserPreferences(config.getBoolean("SaveUserPreferences"));
+        setPlayerDisguisesSkinExpiresMove(config.getInt("PlayerDisguisesTablistExpiresMove"));
 
         if (!LibsPremium.isPremium() && (isSavePlayerDisguises() || isSaveEntityDisguises())) {
             DisguiseUtilities.getLogger().warning("You must purchase the plugin to use saved disguises!");
@@ -743,8 +765,8 @@ public class DisguiseConfig {
         }
 
         try {
-            String option =
-                    config.getString("SelfDisguisesScoreboard", DisguisePushing.MODIFY_SCOREBOARD.name()).toUpperCase(Locale.ENGLISH);
+            String option = config.getString("SelfDisguisesScoreboard", DisguisePushing.MODIFY_SCOREBOARD.name())
+                    .toUpperCase(Locale.ENGLISH);
 
             if (!option.endsWith("_SCOREBOARD")) {
                 option += "_SCOREBOARD";
