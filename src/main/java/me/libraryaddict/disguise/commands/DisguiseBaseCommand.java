@@ -1,16 +1,12 @@
 package me.libraryaddict.disguise.commands;
 
 import com.comphenix.protocol.ProtocolLibrary;
+import me.libraryaddict.disguise.BlockedDisguises;
 import me.libraryaddict.disguise.DisguiseConfig;
-import me.libraryaddict.disguise.LibsDisguises;
 import me.libraryaddict.disguise.commands.disguise.DisguiseCommand;
 import me.libraryaddict.disguise.commands.disguise.DisguiseEntityCommand;
-import me.libraryaddict.disguise.commands.disguise.DisguisePlayerCommand;
-import me.libraryaddict.disguise.commands.disguise.DisguiseRadiusCommand;
 import me.libraryaddict.disguise.commands.modify.DisguiseModifyCommand;
 import me.libraryaddict.disguise.commands.modify.DisguiseModifyEntityCommand;
-import me.libraryaddict.disguise.commands.modify.DisguiseModifyPlayerCommand;
-import me.libraryaddict.disguise.commands.modify.DisguiseModifyRadiusCommand;
 import me.libraryaddict.disguise.disguisetypes.DisguiseType;
 import me.libraryaddict.disguise.utilities.DisguiseUtilities;
 import me.libraryaddict.disguise.utilities.LibsPremium;
@@ -41,12 +37,8 @@ public abstract class DisguiseBaseCommand implements CommandExecutor {
 
         map.put(DisguiseCommand.class, "Disguise");
         map.put(DisguiseEntityCommand.class, "DisguiseEntity");
-        map.put(DisguisePlayerCommand.class, "DisguisePlayer");
-        map.put(DisguiseRadiusCommand.class, "DisguiseRadius");
         map.put(DisguiseModifyCommand.class, "DisguiseModify");
         map.put(DisguiseModifyEntityCommand.class, "DisguiseModifyEntity");
-        map.put(DisguiseModifyPlayerCommand.class, "DisguiseModifyPlayer");
-        map.put(DisguiseModifyRadiusCommand.class, "DisguiseModifyRadius");
 
         disguiseCommands = map;
     }
@@ -236,7 +228,11 @@ public abstract class DisguiseBaseCommand implements CommandExecutor {
             if (type.isUnknown())
                 continue;
 
-            allowedDisguises.add(type.toReadable().replaceAll(" ", "_"));
+            final String name = type.toReadable().replaceAll(" ", "_");
+
+            if (BlockedDisguises.isAllowed(DisguiseParser.getDisguisePerm(name).getType())) {
+                allowedDisguises.add(name);
+            }
         }
 
         return allowedDisguises;
