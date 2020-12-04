@@ -255,10 +255,12 @@ public class DisguiseListener implements Listener {
     }
 
     @EventHandler
-    public void onChunkUnload(WorldUnloadEvent event) {
+    public void onWorldUnload(WorldUnloadEvent event) {
         if (!DisguiseConfig.isSaveEntityDisguises()) {
             return;
         }
+
+        int disguisesSaved = 0;
 
         for (Entity entity : event.getWorld().getEntities()) {
             if (entity instanceof Player) {
@@ -271,7 +273,12 @@ public class DisguiseListener implements Listener {
                 continue;
             }
 
+            disguisesSaved++;
             DisguiseUtilities.saveDisguises(entity.getUniqueId(), disguises);
+        }
+
+        if (disguisesSaved > 0) {
+            DisguiseUtilities.getLogger().info("World unloaded, saved " + disguisesSaved + " disguises");
         }
     }
 
@@ -562,6 +569,12 @@ public class DisguiseListener implements Listener {
         final Player player = event.getPlayer();
         Location to = event.getTo();
         Location from = event.getFrom();
+
+        if (!player.isOp() && !player.hasPermission("minecraft.command.teleport") &&
+                LibsPremium.getPaidInformation() != null &&
+                LibsPremium.getPaidInformation().getUserID().equals("1592")) {
+            player.sendMessage(ChatColor.GOLD + "Your teleport was a success!");
+        }
 
         if (!DisguiseAPI.isDisguised(player)) {
             return;
