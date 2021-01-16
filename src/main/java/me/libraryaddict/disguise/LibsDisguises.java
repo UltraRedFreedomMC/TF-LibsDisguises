@@ -321,4 +321,3 @@ public class LibsDisguises extends JavaPlugin {
     public static LibsDisguises getInstance() {
         return instance;
     }
-}

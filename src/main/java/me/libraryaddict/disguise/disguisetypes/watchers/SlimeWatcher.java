@@ -22,13 +22,15 @@ public class SlimeWatcher extends InsentientWatcher {
         return getData(MetaIndex.SLIME_SIZE);
     }
 
+    // TFM Start
     @RandomDefaultValue
     public void setSize(int size) {
         if (size < 1) {
             size = 1;
-        } else if (size > 50) {
-            size = 50;
+        } else if (size > 5) {
+            size = 5;
         }
+        // TFM End
 
         if (hasValue(MetaIndex.SLIME_SIZE) && getData(MetaIndex.SLIME_SIZE) == size) {
             return;
