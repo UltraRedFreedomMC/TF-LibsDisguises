@@ -5,6 +5,163 @@
     <!-- A good example on why temporary names for project identification shouldn't be used -->
     <groupId>LibsDisguises</groupId>
     <artifactId>LibsDisguises</artifactId>
+    <version>10.0.21-SNAPSHOT</version>
+
+    <build>
+        <defaultGoal>exec:java clean install</defaultGoal>
+        <finalName>LibsDisguises</finalName>
+
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>*</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>${project.basedir}</directory>
+                <includes>
+                    <include>README.md</include>
+                </includes>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.0.0-M1</version>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.6.0</version>
+
+                <executions>
+                    <execution>
+                        <id>my-execution</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <includePluginDependencies>true</includePluginDependencies>
+                    <mainClass>me.libraryaddict.disguise.utilities.watchers.CompileMethods</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <properties>
+        <build.number>unknown</build.number>
+        <timestamp>${maven.build.timestamp}</timestamp>
+        <maven.build.timestamp.format>dd/MM/yyyy HH:mm</maven.build.timestamp.format>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <asm.version>9.0</asm.version>
+        <lombok.version>1.18.16</lombok.version>
+        <protocollib.version>master-SNAPSHOT</protocollib.version>
+        <spigot.version>1.16.1-R0.1-SNAPSHOT</spigot.version>
+        <junit.version>4.13.1</junit.version>
+        <paper-api.version>1.16.1-R0.1-SNAPSHOT</paper-api.version>
+        <bungeecord-chat.version>1.12-SNAPSHOT</bungeecord-chat.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+            <version>${asm.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.github.dmulloy2</groupId>
+            <artifactId>ProtocolLib</artifactId>
+            <version>${protocollib.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <version>${spigot.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot</artifactId>
+            <version>${spigot.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <!-- testing -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.destroystokyo.paper</groupId>
+            <artifactId>paper-api</artifactId>
+            <version>${paper-api.version}</version>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>net.md-5</groupId>
+            <artifactId>bungeecord-chat</artifactId>
+            <version>${bungeecord-chat.version}</version>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
+
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+        <repository>
+            <id>md_5-releases</id>
+            <url>https://repo.md-5.net/content/groups/public/</url>
+        </repository>
+        <repository>
+            <id>spigot-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+        </repository>
+        <repository>
+            <id>papermc</id>
+            <url>https://papermc.io/repo/repository/maven-public/</url>
+        </repository>
+    </repositories>
+
+    <distributionManagement>
+        <repository>
+            <id>md_5-releases</id>
+            <url>https://repo.md-5.net/content/repositories/releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>md_5-snapshots</id>
+            <url>https://repo.md-5.net/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+</project>
+=======
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <!-- A good example on why temporary names for project identification shouldn't be used -->
+    <groupId>LibsDisguises</groupId>
+    <artifactId>LibsDisguises</artifactId>
     <version>10.0.20-SNAPSHOT</version>
 
     <build>

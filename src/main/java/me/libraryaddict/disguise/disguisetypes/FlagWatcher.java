@@ -257,7 +257,12 @@ public class FlagWatcher {
 
         for (WrappedWatchableObject watch : list) {
             int id = watch.getIndex();
+            MetaIndex index = MetaIndex.getMetaIndex(this, id);
             sentValues.add(id);
+
+            if (index == null) {
+                continue;
+            }
 
             // Its sending the air metadata. This is the least commonly sent metadata which all entitys still share.
             // I send my custom values if I see this!
@@ -290,7 +295,7 @@ public class FlagWatcher {
 
                 boolean isDirty = watch.getDirtyState();
 
-                watch = ReflectionManager.createWatchable(MetaIndex.getMetaIndex(this, id), value);
+                watch = ReflectionManager.createWatchable(index, value);
 
                 if (watch == null) {
                     continue;
@@ -302,7 +307,7 @@ public class FlagWatcher {
             } else {
                 boolean isDirty = watch.getDirtyState();
 
-                watch = ReflectionManager.createWatchable(MetaIndex.getMetaIndex(this, id), watch.getRawValue());
+                watch = ReflectionManager.createWatchable(index, watch.getRawValue());
 
                 if (watch == null) {
                     continue;
@@ -446,6 +451,10 @@ public class FlagWatcher {
 
         try {
             for (Player player : DisguiseUtilities.getPerverts(getDisguise())) {
+                if (getDisguise().isPlayerDisguise() && LibsDisguises.getInstance().getSkinHandler().isSleeping(player, (PlayerDisguise) getDisguise())) {
+                    continue;
+                }
+
                 for (PacketContainer packet : packets) {
                     ProtocolLibrary.getProtocolManager().sendServerPacket(player, packet);
                 }

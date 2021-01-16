@@ -149,10 +149,18 @@ public abstract class Disguise {
     public abstract double getHeight();
 
     protected void sendArmorStands(String[] oldName) {
+        if (!isDisguiseInUse()) {
+            return;
+        }
+
         ArrayList<PacketContainer> packets = DisguiseUtilities.getNamePackets(this, oldName);
 
         try {
             for (Player player : DisguiseUtilities.getPerverts(this)) {
+                if (isPlayerDisguise() && LibsDisguises.getInstance().getSkinHandler().isSleeping(player, (PlayerDisguise) this)) {
+                    continue;
+                }
+
                 for (PacketContainer packet : packets) {
                     ProtocolLibrary.getProtocolManager().sendServerPacket(player, packet);
                 }

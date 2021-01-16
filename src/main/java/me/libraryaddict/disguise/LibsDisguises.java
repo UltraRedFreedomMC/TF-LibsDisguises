@@ -5,8 +5,12 @@ import lombok.Getter;
 import me.libraryaddict.disguise.commands.LibsDisguisesCommand;
 import me.libraryaddict.disguise.commands.disguise.DisguiseCommand;
 import me.libraryaddict.disguise.commands.disguise.DisguiseEntityCommand;
+import me.libraryaddict.disguise.commands.disguise.DisguisePlayerCommand;
+import me.libraryaddict.disguise.commands.disguise.DisguiseRadiusCommand;
 import me.libraryaddict.disguise.commands.modify.DisguiseModifyCommand;
 import me.libraryaddict.disguise.commands.modify.DisguiseModifyEntityCommand;
+import me.libraryaddict.disguise.commands.modify.DisguiseModifyPlayerCommand;
+import me.libraryaddict.disguise.commands.modify.DisguiseModifyRadiusCommand;
 import me.libraryaddict.disguise.commands.undisguise.UndisguiseCommand;
 import me.libraryaddict.disguise.commands.undisguise.UndisguiseEntityCommand;
 import me.libraryaddict.disguise.commands.undisguise.UndisguisePlayerCommand;
@@ -30,6 +34,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.*;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -56,9 +61,31 @@ public class LibsDisguises extends JavaPlugin {
 
         if (!Bukkit.getServer().getWorlds().isEmpty()) {
             reloaded = true;
-            getLogger().severe("Server was reloaded! Please do not report any bugs! This plugin can't handle " +
-                    "reloads gracefully!");
+            getLogger().severe("Server was reloaded! Please do not report any bugs! This plugin can't handle " + "reloads gracefully!");
             return;
+        }
+
+        Plugin plugin = Bukkit.getPluginManager().getPlugin("ProtocolLib");
+
+        if (plugin == null || DisguiseUtilities.isOlderThan(DisguiseUtilities.getProtocolLibRequiredVersion(), plugin.getDescription().getVersion())) {
+            getLogger().warning("Noticed you're using an older version of ProtocolLib (or not using it)! We're forcibly updating you!");
+
+            try {
+                File dest = DisguiseUtilities.updateProtocolLib();
+
+                if (plugin == null) {
+                    getLogger().info("ProtocolLib downloaded and stuck in plugins folder! Now trying to load it!");
+                    plugin = Bukkit.getPluginManager().loadPlugin(dest);
+                    plugin.onLoad();
+
+                    Bukkit.getPluginManager().enablePlugin(plugin);
+                } else {
+                    getLogger().severe("Please restar the server to complete the ProtocolLib update!");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
         }
 
         try {
@@ -74,8 +101,7 @@ public class LibsDisguises extends JavaPlugin {
     @Override
     public void onEnable() {
         if (reloaded) {
-            getLogger().severe("Server was reloaded! Please do not report any bugs! This plugin can't handle " +
-                    "reloads gracefully!");
+            getLogger().severe("Server was reloaded! Please do not report any bugs! This plugin can't handle " + "reloads gracefully!");
         }
 
         try {
@@ -105,16 +131,12 @@ public class LibsDisguises extends JavaPlugin {
         LibsPremium.check(getDescription().getVersion(), getFile());
 
         if (!LibsPremium.isPremium()) {
-            getLogger()
-                    .info("You are running the free version, commands limited to non-players and operators. (Console," +
-                            " Command " + "Blocks, Admins)");
+            getLogger().info("You are running the free version, commands limited to non-players and operators. (Console," + " Command " + "Blocks, Admins)");
         }
 
         if (ReflectionManager.getVersion() == null) {
-            getLogger().severe("You're using the wrong version of Lib's Disguises for your server! This is " +
-                    "intended for " + StringUtils
-                    .join(Arrays.stream(NmsVersion.values()).map(v -> v.name().replace("_", "."))
-                            .collect(Collectors.toList()), " & ") + "!");
+            getLogger().severe("You're using the wrong version of Lib's Disguises for your server! This is " + "intended for " +
+                    StringUtils.join(Arrays.stream(NmsVersion.values()).map(v -> v.name().replace("_", ".")).collect(Collectors.toList()), " & ") + "!");
             getPluginLoader().disablePlugin(this);
             return;
         }
@@ -124,11 +146,9 @@ public class LibsDisguises extends JavaPlugin {
 
         if (DisguiseUtilities.isOlderThan(requiredProtocolLib, version)) {
             getLogger().severe("!! May I have your attention please !!");
-            getLogger().severe("Update your ProtocolLib! You are running " + version +
-                    " but the minimum version you should be on is " + requiredProtocolLib + "!");
-            getLogger()
-                    .severe("https://ci.dmulloy2.net/job/ProtocolLib/lastSuccessfulBuild/artifact/target/ProtocolLib" +
-                            ".jar");
+            getLogger().severe("Update your ProtocolLib! You are running " + version + " but the minimum version you should be on is " + requiredProtocolLib +
+                    "!");
+            getLogger().severe("https://ci.dmulloy2.net/job/ProtocolLib/lastSuccessfulBuild/artifact/target/ProtocolLib" + ".jar");
             getLogger().severe("Or! Use /ld updateprotocollib - To update to the latest development build");
             getLogger().severe("!! May I have your attention please !!");
 
@@ -136,13 +156,11 @@ public class LibsDisguises extends JavaPlugin {
                 @Override
                 public void run() {
                     getLogger().severe("!! May I have your attention please !!");
-                    getLogger().severe("Update your ProtocolLib! You are running " + version +
-                            " but the minimum version you should be on is " + requiredProtocolLib + "!");
-                    getLogger().severe("https://ci.dmulloy2.net/job/ProtocolLib/lastSuccessfulBuild/artifact/target" +
-                            "/ProtocolLib" + ".jar");
+                    getLogger().severe("Update your ProtocolLib! You are running " + version + " but the minimum version you should be on is " +
+                            requiredProtocolLib + "!");
+                    getLogger().severe("https://ci.dmulloy2.net/job/ProtocolLib/lastSuccessfulBuild/artifact/target" + "/ProtocolLib" + ".jar");
                     getLogger().severe("Or! Use /ld updateprotocollib - To update to the latest development build");
-                    getLogger()
-                            .severe("This message is on repeat due to the sheer number of people who don't see this.");
+                    getLogger().severe("This message is on repeat due to the sheer number of people who don't see this.");
                 }
             }.runTaskTimer(this, 20, 10 * 60 * 20);
         }
@@ -187,9 +205,11 @@ public class LibsDisguises extends JavaPlugin {
         if (!DisguiseConfig.isDisableCommands()) {
             registerCommand("disguise", new DisguiseCommand());
             registerCommand("undisguise", new UndisguiseCommand());
+            registerCommand("disguiseplayer", new DisguisePlayerCommand());
             registerCommand("undisguiseplayer", new UndisguisePlayerCommand());
             registerCommand("undisguiseentity", new UndisguiseEntityCommand());
             registerCommand("disguiseentity", new DisguiseEntityCommand());
+            registerCommand("disguiseradius", new DisguiseRadiusCommand(getConfig().getInt("DisguiseRadiusMax")));
             registerCommand("undisguiseradius", new UndisguiseRadiusCommand(getConfig().getInt("UndisguiseRadiusMax")));
             registerCommand("disguisehelp", new DisguiseHelpCommand());
             registerCommand("disguiseclone", new DisguiseCloneCommand());
@@ -197,8 +217,11 @@ public class LibsDisguises extends JavaPlugin {
             registerCommand("disguiseviewbar", new DisguiseViewBarCommand());
             registerCommand("disguisemodify", new DisguiseModifyCommand());
             registerCommand("disguisemodifyentity", new DisguiseModifyEntityCommand());
+            registerCommand("disguisemodifyplayer", new DisguiseModifyPlayerCommand());
+            registerCommand("disguisemodifyradius", new DisguiseModifyRadiusCommand(getConfig().getInt("DisguiseRadiusMax")));
             registerCommand("copydisguise", new CopyDisguiseCommand());
             registerCommand("grabskin", new GrabSkinCommand());
+            registerCommand("savedisguise", new SaveDisguiseCommand());
             registerCommand("grabhead", new GrabHeadCommand());
         } else {
             getLogger().info("Commands has been disabled, as per config");
